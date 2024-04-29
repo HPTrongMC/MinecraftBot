@@ -3,6 +3,7 @@ import webInventory from "mineflayer-web-inventory";
 import mineflayerViewer from "prismarine-viewer";
 import readline from "readline";
 import fs from "fs";
+import path from "path"; //Thêm thư viện path để xử lý đường dẫn
 
 // Setup global bot arguments
 let botSetting = {
@@ -42,7 +43,7 @@ class MCBot {
 
         this.bot.once('spawn', () => {
             console.log(`Bot spawned at ${this.bot.entity.position}`);
-            const logFileName = `log_${new Date().toISOString().replace(/:/g, '-')}.txt`;
+            const logFileName = this.getLogFileName();
             fs.appendFileSync(logFileName, `Bot spawned at ${this.bot.entity.position}\n`);
         });
 
@@ -52,6 +53,15 @@ class MCBot {
         //this.initViewer();
     }
 
+    getLogFileName() {
+        const logsDirectory = path.join(__dirname, 'logs'); // Tạo đường dẫn đến thư mục logs
+        if (!fs.existsSync(logsDirectory)) { // Kiểm tra xem thư mục logs đã tồn tại chưa
+            fs.mkdirSync(logsDirectory); // Nếu chưa tồn tại, tạo mới
+        }
+        const timestamp = new Date().toISOString().replace(/:/g, '-'); // Tạo timestamp
+        return path.join(logsDirectory, `log_${timestamp}.txt`); // Trả về đường dẫn đến file log mới
+    }
+
     initgettime() {
         // Lấy thời gian hiện tại
         const getTime = new Date();
@@ -59,7 +69,7 @@ class MCBot {
         const time = getTime.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' });
         const timeprint = 'Thời gian khởi động bot ở khu vực Asia/Ho_Chi_Minh là: ' + time;
         console.log(timeprint);
-        const logFileName = `log_${new Date().toISOString().replace(/:/g, '-')}.txt`;
+        const logFileName = this.getLogFileName();
         fs.appendFileSync(logFileName, `______________________________________________________________________________________\n`);
         fs.appendFileSync(logFileName, `________________________________BOT ĐÃ CHẠY___________________________________________\n`);
         fs.appendFileSync(logFileName, `______________________________________________________________________________________\n`);
@@ -78,7 +88,7 @@ class MCBot {
                     this.bot.viewer.drawLine('path', path);
                 }
             });
-            const logFileName = `log_${new Date().toISOString().replace(/:/g, '-')}.txt`;
+            const logFileName = this.getLogFileName();
             fs.appendFileSync(logFileName, `Viewer initialized\n`);
         });
     }
@@ -91,7 +101,7 @@ class MCBot {
 
         this.bot.once('spawn', () => {
             console.log(`Bot joined the game with username ${this.bot.username}.`);
-            const logFileName = `log_${new Date().toISOString().replace(/:/g, '-')}.txt`;
+            const logFileName = this.getLogFileName();
             fs.appendFileSync(logFileName, `Bot joined the game with username ${this.bot.username}.\n`);
             rl.setPrompt('> '); 
             rl.prompt(); // gives us a little arrow at the bottom for the input line
@@ -102,7 +112,7 @@ class MCBot {
             const messageWithColor = message.toAnsi();
             console.log(messageWithColor); // In ra console với màu sắc
             const messageWithoutColor = messageWithColor.toString().replace(/\u001b\[[0-9;]*m/g, ''); // Loại bỏ màu sắc
-            const logFileName = `log_${new Date().toISOString().replace(/:/g, '-')}.txt`;
+            const logFileName = this.getLogFileName();
             fs.appendFileSync(logFileName, `${messageWithoutColor}\n`); // Ghi dữ liệu vào file
             rl.prompt(); // regenerate our little arrow on the input line
         });
@@ -115,13 +125,13 @@ class MCBot {
 
         this.bot.on('kicked', (reason) => {
             console.log(reason);
-            const logFileName = `log_${new Date().toISOString().replace(/:/g, '-')}.txt`;
+            const logFileName = this.getLogFileName();
             fs.appendFileSync(logFileName, `${reason}\n`);
         });
 
         this.bot.on('error', (error) => {
             console.log(error);
-            const logFileName = `log_${new Date().toISOString().replace(/:/g, '-')}.txt`;
+            const logFileName = this.getLogFileName();
             fs.appendFileSync(logFileName, `${error}\n`);
         });
 
